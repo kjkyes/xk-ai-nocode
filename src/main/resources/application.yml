@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: xk-ai-nocode-backend
+server:
+  servlet:
+    port: 8080
+    context-path: /api
+# springdoc-openapi
+springdoc:
+  group-configs:
+    - group: 'default'
+      packages-to-scan: com.xk.xkainocode.controller
+# knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
