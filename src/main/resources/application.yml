@@ -1,6 +1,11 @@
 spring:
   application:
     name: xk-ai-nocode-backend
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/xk_ai_nocode
+    username: root
+    password: root
 server:
   servlet:
     port: 8080
