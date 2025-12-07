@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import com.xk.xkainocode.dto.user.UserQueryRequest;
+import com.xk.xkainocode.model.dto.user.UserQueryRequest;
 import com.xk.xkainocode.exception.BusinessException;
 import com.xk.xkainocode.exception.ErrorCode;
 import com.xk.xkainocode.mapper.UserMapper;

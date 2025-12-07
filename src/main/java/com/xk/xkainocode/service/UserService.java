@@ -2,7 +2,7 @@ package com.xk.xkainocode.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.xk.xkainocode.dto.user.UserQueryRequest;
+import com.xk.xkainocode.model.dto.user.UserQueryRequest;
 import com.xk.xkainocode.model.entity.User;
 import com.xk.xkainocode.model.vo.LoginUserVO;
 import com.xk.xkainocode.model.vo.UserVO;

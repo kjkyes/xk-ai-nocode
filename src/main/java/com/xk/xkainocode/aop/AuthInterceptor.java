@@ -9,6 +9,7 @@ import com.xk.xkainocode.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
@@ -22,6 +23,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class AuthInterceptor {
 
+    static {
+        System.out.println("=== User class loaded from: " +
+                com.xk.xkainocode.model.entity.User.class.getProtectionDomain().getCodeSource().getLocation());
+    }
     @Resource
     private UserService userService;
 
@@ -33,6 +38,7 @@ public class AuthInterceptor {
      * @return
      * @throws Throwable
      */
+    @Around("@annotation(authCheck)")
     public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
         // 1.获取要求权限
         String mustRole = authCheck.mustRole();
