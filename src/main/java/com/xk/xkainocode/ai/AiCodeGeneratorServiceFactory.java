@@ -83,7 +83,7 @@ public class AiCodeGeneratorServiceFactory {
                 .id(appId)
                 // 将对话历史保存在redis
                 .chatMemoryStore(redisChatMemoryStore)
-                .maxMessages(20)
+                .maxMessages(80)
                 .build();
         chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);
         return switch (codeGenType) {

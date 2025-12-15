@@ -18,6 +18,8 @@ import com.xk.xkainocode.model.dto.app.*;
 import com.xk.xkainocode.model.entity.App;
 import com.xk.xkainocode.model.entity.User;
 import com.xk.xkainocode.model.vo.AppVO;
+import com.xk.xkainocode.ratelimiter.annotation.RateLimit;
+import com.xk.xkainocode.ratelimiter.enums.RateLimitType;
 import com.xk.xkainocode.service.AppService;
 import com.xk.xkainocode.service.ProjectDownloadService;
 import com.xk.xkainocode.service.UserService;
@@ -63,7 +65,7 @@ public class AppController {
      * @return 生成代码流
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-//    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI 对话请求过于频繁，请稍后再试")
     public Flux<ServerSentEvent<String>> chatToGen(@RequestParam Long appId, @RequestParam String message, HttpServletRequest request){
         // 参数校验
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用 id 无效");
