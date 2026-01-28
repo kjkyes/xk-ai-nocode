@@ -1,19 +1,15 @@
 package com.xk.xkainocode.service.impl;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
+import com.xk.xkainocode.config.RabbitMQConfig;
 import com.xk.xkainocode.exception.ErrorCode;
 import com.xk.xkainocode.exception.ThrowUtils;
-import com.xk.xkainocode.manager.CosManager;
+import com.xk.xkainocode.model.dto.ScreenshotTaskDTO;
 import com.xk.xkainocode.service.ScreenshotService;
-import com.xk.xkainocode.util.WebScreenshotUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -21,68 +17,36 @@ import java.util.UUID;
 public class ScreenshotServiceImpl implements ScreenshotService {
 
     @Resource
-    private CosManager cosManager;
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public String generateAndUploadScreenshot(String webUrl) {
-        ThrowUtils.throwIf(StrUtil.isBlank(webUrl), ErrorCode.PARAMS_ERROR, "网页URL不能为空");
-        log.info("开始生成网页截图，URL: {}", webUrl);
-        // 1. 生成本地截图
-        String localScreenshotPath = WebScreenshotUtils.saveWebPageScreenshot(webUrl);
-        ThrowUtils.throwIf(StrUtil.isBlank(localScreenshotPath), ErrorCode.OPERATION_ERROR, "本地截图生成失败");
-        try {
-            // 2. 上传到对象存储
-            String cosUrl = uploadScreenshotToCos(localScreenshotPath);
-            ThrowUtils.throwIf(StrUtil.isBlank(cosUrl), ErrorCode.OPERATION_ERROR, "截图上传对象存储失败");
-            log.info("网页截图生成并上传成功: {} -> {}", webUrl, cosUrl);
-            return cosUrl;
-        } finally {
-            // 3. 清理本地文件
-            cleanupLocalFile(localScreenshotPath);
-        }
+        return generateAndUploadScreenshot(webUrl, null);
     }
-
-    /**
-     * 上传截图到对象存储
-     *
-     * @param localScreenshotPath 本地截图路径
-     * @return 对象存储访问URL，失败返回null
-     */
-    private String uploadScreenshotToCos(String localScreenshotPath) {
-        if (StrUtil.isBlank(localScreenshotPath)) {
-            return null;
-        }
-        File screenshotFile = new File(localScreenshotPath);
-        if (!screenshotFile.exists()) {
-            log.error("截图文件不存在: {}", localScreenshotPath);
-            return null;
-        }
-        // 生成 COS 对象键
-        String fileName = UUID.randomUUID().toString().substring(0, 8) + "_compressed.jpg";
-        String cosKey = generateScreenshotKey(fileName);
-        return cosManager.uploadFile(cosKey, screenshotFile);
-    }
-
-    /**
-     * 生成截图的对象存储键
-     * 格式：/screenshots/2025/07/31/filename.jpg
-     */
-    private String generateScreenshotKey(String fileName) {
-        String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        return String.format("/screenshots/%s/%s", datePath, fileName);
-    }
-
-    /**
-     * 清理本地文件
-     *
-     * @param localFilePath 本地文件路径
-     */
-    private void cleanupLocalFile(String localFilePath) {
-        File localFile = new File(localFilePath);
-        if (localFile.exists()) {
-            File parentDir = localFile.getParentFile();
-            FileUtil.del(parentDir);
-            log.info("本地截图文件已清理: {}", localFilePath);
-        }
+    
+    @Override
+    public String generateAndUploadScreenshot(String webUrl, Long appId) {
+        // 参数校验
+        ThrowUtils.throwIf(webUrl == null || webUrl.trim().isEmpty(), ErrorCode.PARAMS_ERROR, "网页URL不能为空");
+        
+        // 生成任务ID
+        String taskId = UUID.randomUUID().toString();
+        
+        // 创建截图任务
+        ScreenshotTaskDTO task = ScreenshotTaskDTO.builder()
+                .taskId(taskId)
+                .webUrl(webUrl)
+                .appId(appId)
+                .build();
+        
+        // 发送到消息队列
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.SCREENSHOT_TASK_EXCHANGE,
+                RabbitMQConfig.SCREENSHOT_TASK_ROUTING_KEY,
+                task
+        );
+        
+        log.info("截图任务已发送到队列: taskId={}, webUrl={}, appId={}", taskId, webUrl, appId);
+        return "截图任务已提交，正在处理中...";
     }
 }

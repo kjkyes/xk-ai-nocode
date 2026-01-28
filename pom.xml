@@ -127,6 +127,12 @@
             <version>1.1.0-beta7</version>
         </dependency>
 
+        <!-- RabbitMQ 依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!-- 因为其独特的双类加载机制，导致openAiStreamingChatModel两通道加载不一致导致jvm识别错误，因此需要注掉此依赖 -->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->

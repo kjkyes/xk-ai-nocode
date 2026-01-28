@@ -178,8 +178,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         ThrowUtils.throwIf(codeGenTypeEnum == null, ErrorCode.SYSTEM_ERROR, "不支持的代码生成类型");
         if(codeGenTypeEnum == CodeGenTypeEnum.VUE_PROJECT){
             // 构建 Vue 项目
-            boolean successBuild = vueProjectBuilder.buildProject(sourceDirPath);
-            ThrowUtils.throwIf(!successBuild, ErrorCode.SYSTEM_ERROR, "构建 Vue 项目失败，请重试");
+            // todo vue项目在对话生成的时候就已经构建过了，所以这里可以test一下是否有必要再部署时再构建一次
+//            boolean successBuild = vueProjectBuilder.buildProject(sourceDirPath);
+//            ThrowUtils.throwIf(!successBuild, ErrorCode.SYSTEM_ERROR, "构建 Vue 项目失败，请重试");
             // 检查 dist 目录是否存在
             File distDir = new File(sourceDir, "dist");
             ThrowUtils.throwIf(distDir == null || !distDir.exists(), ErrorCode.SYSTEM_ERROR, "构建 Vue 项目成功，但dist文件未生成");
@@ -216,17 +217,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
      */
     @Override
     public void generateAppScreenshotAsync(Long appId, String appUrl) {
-        // 使用虚拟线程异步执行
-        Thread.startVirtualThread(() -> {
-            // 调用截图服务生成截图并上传
-            String screenshotUrl = screenshotService.generateAndUploadScreenshot(appUrl);
-            // 更新应用封面字段
-            App updateApp = new App();
-            updateApp.setId(appId);
-            updateApp.setCover(screenshotUrl);
-            boolean updated = this.updateById(updateApp);
-            ThrowUtils.throwIf(!updated, ErrorCode.OPERATION_ERROR, "更新应用封面字段失败");
-        });
+        // 调用带有appId的截图服务，截图服务会将任务发送到消息队列
+        // 消费者完成截图后会自动更新应用封面
+        screenshotService.generateAndUploadScreenshot(appUrl, appId);
     }
 
 

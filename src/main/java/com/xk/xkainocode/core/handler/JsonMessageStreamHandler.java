@@ -47,6 +47,8 @@ public class JsonMessageStreamHandler {
         // 用于跟踪已经见过的工具ID，判断是否是第一次调用
         Set<String> seenToolIds = new HashSet<>();
         return originFlux
+                // 这是 Project Reactor 中 Flux<T> 的一个核心变换算子——map 的源码签名。它把上游发出的每个 T 元素同步地转换成 V 元素，并返回一个新的 Flux<V>（即“一换一”的流式变换）。
+                // 简言之，通过originFlux.map()将原本的TokenStream中的chunk一对一换成我们修改后的要返回的Flux的chunk
                 .map(chunk -> {
                     // 解析每个 JSON 消息块
                     return handleJsonMessageChunk(chunk, chatHistoryStringBuilder, seenToolIds);

@@ -25,29 +25,17 @@ import java.util.UUID;
 @Slf4j
 public class WebScreenshotUtils {
 
-    private static final WebDriver webDriver;
-
-    static {
+    private static final ThreadLocal<WebDriver> webDriverThreadLocal = ThreadLocal.withInitial(() -> {
         final int DEFAULT_WIDTH = 1600;
         final int DEFAULT_HEIGHT = 900;
-        webDriver = initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
+        return initChromeDriver(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    });
 
-    /**
-     * 在项目停止前正确销毁驱动，释放资源
-     */
-    @PreDestroy
-    public void destroy() {
-        webDriver.quit();
-    }
-
-    /**
-     * 初始化 Chrome 浏览器驱动
-     */
     private static WebDriver initChromeDriver(int width, int height) {
         try {
             // 自动管理 ChromeDriver
-            WebDriverManager.chromedriver().setup();
+            System.setProperty("wdm.chromeDriverMirrorUrl", "https://registry.npmmirror.com/binary.html?path=chromedriver");
+            WebDriverManager.chromedriver().useMirror().setup();
             // 配置 Chrome 选项
             ChromeOptions options = getChromeOptions(width, height);
             // 创建驱动
@@ -159,7 +147,11 @@ public class WebScreenshotUtils {
         if (StrUtil.isBlank(webUrl)) {
             return null;
         }
+        WebDriver driver = null;
         try {
+            // 从ThreadLocal中获取当前线程的WebDriver实例
+            driver = webDriverThreadLocal.get();
+            
             // 创建临时目录
             String rootPath = System.getProperty("user.dir") + File.separator + "tmp" + File.separator + "screenshots"
                     + File.separator + UUID.randomUUID().toString().substring(0, 8);
@@ -169,11 +161,11 @@ public class WebScreenshotUtils {
             // 原始截图文件路径
             String imageSavePath = rootPath + File.separator + RandomUtil.randomNumbers(5) + IMAGE_SUFFIX;
             // 访问网页
-            webDriver.get(webUrl);
+            driver.get(webUrl);
             // 等待页面加载完成
-            waitForPageLoad(webDriver);
+            waitForPageLoad(driver);
             // 截图
-            byte[] screenshotBytes = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+            byte[] screenshotBytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             // 保存原始图片
             saveImage(screenshotBytes, imageSavePath);
             log.info("原始截图保存成功: {}", imageSavePath);
@@ -191,4 +183,23 @@ public class WebScreenshotUtils {
         }
     }
 
+    /**
+     * 在消息队列模型中，每个消费者线程会重复使用 ThreadLocal 中的 WebDriver 实例，而不是每次都创建新的。WebDriver 实例会在整个应用生命周期中保持活跃，所以目前不需要频繁关闭。
+     * 不过， 为了资源管理考虑 ，我应该在消费者处理完任务后调用 closeWebDriver() 来释放资源。但这需要谨慎处理，因为频繁创建和销毁 WebDriver 实例会影响性能。
+     * 建议 ：暂时不调用该方法，因为 Spring AMQP 的消费者线程会持续运行，重复使用 WebDriver 实例是更高效的做法。这个 closeWebDriver() 方法可以作为应用关闭时的钩子来处理
+     */
+    @PreDestroy
+    public static void closeWebDriver() {
+        WebDriver driver = webDriverThreadLocal.get();
+        if (driver != null) {
+            try {
+                driver.quit();
+                log.info("WebDriver已关闭");
+            } catch (Exception e) {
+                log.error("关闭WebDriver失败", e);
+            } finally {
+                webDriverThreadLocal.remove();
+            }
+        }
+    }
 }

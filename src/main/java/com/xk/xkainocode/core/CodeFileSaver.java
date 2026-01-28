@@ -49,7 +49,7 @@ public class CodeFileSaver {
     /**
      * 构建文件的唯一路径：tmp/code_output/bizType_雪花id
      * 雪花 id 旨在将一个随机数分成64位，分别表示机器码、时间戳等，因为时间戳的因素，所以能保证生成的id唯一
-     * 但也因此要注意雪花 id在服务器时间会退时可能重复
+     * 但也因此要注意雪花 id在服务器时间回退时可能重复
      *
      * @param bizType 代码生成类型
      * @return

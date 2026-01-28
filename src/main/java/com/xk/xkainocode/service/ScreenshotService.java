@@ -12,4 +12,13 @@ public interface ScreenshotService {
      * @return
      */
     String generateAndUploadScreenshot(String url);
+    
+    /**
+     * 生成网页截图并上传到对象存储，完成后更新应用封面
+     *
+     * @param url   网页URL
+     * @param appId 应用ID
+     * @return 任务处理结果
+     */
+    String generateAndUploadScreenshot(String url, Long appId);
 }
