@@ -13,6 +13,7 @@ import com.xk.xkainocode.util.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.bsc.langgraph4j.prebuilt.MessagesState;
+import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,9 @@ public class ImageCollectorNode {
             String originalPrompt = context.getOriginalPrompt();
             List<ImageResource> collectedImages = new ArrayList<>();
 
+            // 开头计时
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             try {
                 // 第一步：获取图片收集计划
                 ImageCollectionPlanService planService = SpringContextUtil.getBean(ImageCollectionPlanService.class);
@@ -49,7 +53,14 @@ public class ImageCollectorNode {
                     ImageSearchTool imageSearchTool = SpringContextUtil.getBean(ImageSearchTool.class);
                     for (ImageCollectionPlan.ImageSearchTask task : plan.getContentImageTasks()) {
                         futures.add(CompletableFuture.supplyAsync(() ->
-                                imageSearchTool.searchContentImages(task.query())));
+                                imageSearchTool.searchContentImages(task.query()))
+//                                // 添加超时控制
+//                                .orTimeout(10, TimeUnit.SECONDS) // 10s超时
+//                                .exceptionally(throwable -> {
+//                                    log.error("内容图片搜索任务超时或执行失败: {}", throwable.getMessage());
+//                                    return Collections.emptyList();
+//                                })
+                        );
                     }
                 }
                 // 并发执行插画图片搜索
@@ -57,7 +68,14 @@ public class ImageCollectorNode {
                     UndrawIllustrationTool illustrationTool = SpringContextUtil.getBean(UndrawIllustrationTool.class);
                     for (ImageCollectionPlan.IllustrationTask task : plan.getIllustrationTasks()) {
                         futures.add(CompletableFuture.supplyAsync(() ->
-                                illustrationTool.searchIllustrations(task.query())));
+                                illustrationTool.searchIllustrations(task.query()))
+//                                // 添加超时控制
+//                                .orTimeout(10, TimeUnit.SECONDS) // 10s超时
+//                                .exceptionally(throwable -> {
+//                                    log.error("插画图片搜索任务超时或执行失败: {}", throwable.getMessage());
+//                                    return Collections.emptyList();
+//                                })
+                        );
                     }
                 }
                 // 并发执行架构图生成
@@ -65,7 +83,14 @@ public class ImageCollectorNode {
                     MermaidDiagramTool diagramTool = SpringContextUtil.getBean(MermaidDiagramTool.class);
                     for (ImageCollectionPlan.DiagramTask task : plan.getDiagramTasks()) {
                         futures.add(CompletableFuture.supplyAsync(() ->
-                                diagramTool.generateMermaidDiagram(task.mermaidCode(), task.description())));
+                                diagramTool.generateMermaidDiagram(task.mermaidCode(), task.description()))
+//                                // 添加超时控制
+//                                .orTimeout(10, TimeUnit.SECONDS) // 10s超时
+//                                .exceptionally(throwable -> {
+//                                    log.error("架构图生成任务超时或执行失败: {}", throwable.getMessage());
+//                                    return Collections.emptyList();
+//                                })
+                        );
                     }
                 }
                 // 并发执行Logo生成
@@ -73,7 +98,14 @@ public class ImageCollectorNode {
                     LogoGeneratorTool logoTool = SpringContextUtil.getBean(LogoGeneratorTool.class);
                     for (ImageCollectionPlan.LogoTask task : plan.getLogoTasks()) {
                         futures.add(CompletableFuture.supplyAsync(() ->
-                                logoTool.generateLogos(task.description())));
+                                logoTool.generateLogos(task.description()))
+//                                // 添加超时控制
+//                                .orTimeout(10, TimeUnit.SECONDS) // 10s超时
+//                                .exceptionally(throwable -> {
+//                                    log.error("Logo生成任务超时或执行失败: {}", throwable.getMessage());
+//                                    return Collections.emptyList();
+//                                })
+                        );
                     }
                 }
 
@@ -92,6 +124,9 @@ public class ImageCollectorNode {
             } catch (Exception e) {
                 log.error("图片收集失败: {}", e.getMessage(), e);
             }
+            // 结尾停止计时
+            stopWatch.stop();
+            log.info("图片收集总耗时: {} ms", stopWatch.getTotalTimeMillis());
             // 更新状态
             context.setCurrentStep("图片收集");
             context.setImageList(collectedImages);
