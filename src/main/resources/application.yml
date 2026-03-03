@@ -20,6 +20,7 @@ server:
   servlet:
     port: 8080
     context-path: /api
+  port: 8081
 # 添加 COS 对象存储配置（需要从腾讯云获取）
 cos:
   client:
