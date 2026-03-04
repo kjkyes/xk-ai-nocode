@@ -7,7 +7,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.xk.xkainocode.exception.BusinessException;
 import com.xk.xkainocode.exception.ErrorCode;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.JavascriptExecutor;
@@ -24,7 +23,8 @@ import java.util.UUID;
 
 @Slf4j
 public class WebScreenshotUtils {
-
+    private static final String CHROME_DRIVER_PATH =
+            System.getProperty("user.dir") + "/src/main/resources/web_drivers/chromedriver.exe";
     private static final ThreadLocal<WebDriver> webDriverThreadLocal = ThreadLocal.withInitial(() -> {
         final int DEFAULT_WIDTH = 1600;
         final int DEFAULT_HEIGHT = 900;
@@ -34,8 +34,18 @@ public class WebScreenshotUtils {
     private static WebDriver initChromeDriver(int width, int height) {
         try {
             // 自动管理 ChromeDriver
-            System.setProperty("wdm.chromeDriverMirrorUrl", "https://registry.npmmirror.com/binary.html?path=chromedriver");
-            WebDriverManager.chromedriver().useMirror().setup();
+//            System.setProperty("wdm.chromeDriverMirrorUrl", "https://registry.npmmirror.com/binary.html?path=chromedriver");
+
+            // 检查 ChromeDriver 文件是否存在
+            File driverFile = new File(CHROME_DRIVER_PATH);
+            if (!driverFile.exists()) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR,
+                        "ChromeDriver 未找到，请确保文件存在于: " + CHROME_DRIVER_PATH);
+            }
+            System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
+
+//            WebDriverManager.chromedriver().useMirror().setup();
+
             // 配置 Chrome 选项
             ChromeOptions options = getChromeOptions(width, height);
             // 创建驱动
@@ -181,6 +191,16 @@ public class WebScreenshotUtils {
             log.error("网页截图失败: {}", webUrl, e);
             return null;
         }
+//        finally {
+//            // 关闭当前 WebDriver 实例
+//            if (driver != null) {
+//                try {
+//                    driver.quit();
+//                } catch (Exception e) {
+//                    log.warn("关闭 WebDriver 时出现异常", e);
+//                }
+//            }
+//        }
     }
 
     /**
