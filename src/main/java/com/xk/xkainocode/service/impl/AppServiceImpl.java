@@ -26,13 +26,11 @@ import com.xk.xkainocode.model.enums.ChatHistoryMessageTypeEnum;
 import com.xk.xkainocode.model.enums.CodeGenTypeEnum;
 import com.xk.xkainocode.model.vo.AppVO;
 import com.xk.xkainocode.model.vo.UserVO;
-import com.xk.xkainocode.service.AppService;
-import com.xk.xkainocode.service.ChatHistoryService;
-import com.xk.xkainocode.service.ScreenshotService;
-import com.xk.xkainocode.service.UserService;
+import com.xk.xkainocode.service.*;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -75,7 +73,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
 
-
+    @Resource
+    @Lazy
+    private UpvoteService upvoteService;
 
     /**
      * 对话生成应用
@@ -133,6 +133,8 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         String clean = row.replaceAll("(?s)<think>.*?</think>", "").trim();
         CodeGenTypeEnum selectedCodeGenType = CodeGenTypeEnum.valueOf(clean);
         app.setCodeGenType(selectedCodeGenType.getValue());
+        // 点赞数默认为0
+        app.setUpvoteCount(0);
         // 插入数据库
         boolean result = this.save(app);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -230,12 +232,22 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
      * @return
      */
     @Override
-    public AppVO getAppVO(App app) {
+    public AppVO getAppVO(App app, User loginUser) {
         if (app == null) {
             return null;
         }
         AppVO appVO = new AppVO();
         BeanUtil.copyProperties(app, appVO);
+        // 关联查询点赞信息
+//        QueryWrapper queryWrapper = QueryWrapper.create()
+//                .eq(Upvote::getAppId, app.getId())
+//                .eq(Upvote::getUserId, loginUser.getId());
+//        Upvote upvote = upvoteService.getOne(queryWrapper);
+//        if(upvote != null){
+//            appVO.setIsUpvote(true);
+//        }
+        Boolean hasUpvote = upvoteService.hasUpvote(app.getId(), loginUser.getId());
+        appVO.setIsUpvote(hasUpvote);
         // 关联查询用户信息
         Long userId = app.getUserId();
         if (userId != null) {
@@ -286,7 +298,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
      * @return
      */
     @Override
-    public List<AppVO> getAppVOList(List<App> appList) {
+    public List<AppVO> getAppVOList(List<App> appList, User loginUser) {
         if (CollUtil.isEmpty(appList)) {
             return new ArrayList<>();
         }
@@ -297,7 +309,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         Map<Long, UserVO> userVOMap = userService.listByIds(userIds).stream()
                 .collect(Collectors.toMap(User::getId, userService::getUserVO));
         return appList.stream().map(app -> {
-            AppVO appVO = getAppVO(app);
+            AppVO appVO = getAppVO(app, loginUser);
             UserVO userVO = userVOMap.get(app.getUserId());
             appVO.setUser(userVO);
             return appVO;

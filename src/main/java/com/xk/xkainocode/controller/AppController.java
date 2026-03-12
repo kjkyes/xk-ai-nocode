@@ -195,13 +195,15 @@ public class AppController {
      * @return 应用详情
      */
     @GetMapping("/get/vo")
-    public BaseResponse<AppVO> getAppVOById(long id) {
+    public BaseResponse<AppVO> getAppVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         App app = appService.getById(id);
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_FOUND_ERROR);
         // 获取封装类（包含用户信息）
-        return ResultUtils.success(appService.getAppVO(app));
+        return ResultUtils.success(appService.getAppVO(app, loginUser));
     }
 
 
@@ -226,7 +228,7 @@ public class AppController {
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize), queryWrapper);
         // 数据封装
         Page<AppVO> appVOPage = new Page<>(pageNum, pageSize, appPage.getTotalRow());
-        List<AppVO> appVOList = appService.getAppVOList(appPage.getRecords());
+        List<AppVO> appVOList = appService.getAppVOList(appPage.getRecords(), loginUser);
         appVOPage.setRecords(appVOList);
         return ResultUtils.success(appVOPage);
     }
@@ -243,7 +245,7 @@ public class AppController {
             key = "T(com.xk.xkainocode.util.CacheKeyUtils).generateKey(#appQueryRequest)",
             condition = "#appQueryRequest.pageNum <= 10"
     )
-    public BaseResponse<Page<AppVO>> listGoodAppVOByPage(@RequestBody AppQueryRequest appQueryRequest) {
+    public BaseResponse<Page<AppVO>> listGoodAppVOByPage(@RequestBody AppQueryRequest appQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 限制每页最多 20 个
         long pageSize = appQueryRequest.getPageSize();
@@ -254,9 +256,11 @@ public class AppController {
         QueryWrapper queryWrapper = appService.getQueryWrapper(appQueryRequest);
         // 分页查询
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize), queryWrapper);
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
         // 数据封装
         Page<AppVO> appVOPage = new Page<>(pageNum, pageSize, appPage.getTotalRow());
-        List<AppVO> appVOList = appService.getAppVOList(appPage.getRecords());
+        List<AppVO> appVOList = appService.getAppVOList(appPage.getRecords(), loginUser);
         appVOPage.setRecords(appVOList);
         return ResultUtils.success(appVOPage);
     }
@@ -351,7 +355,7 @@ public class AppController {
      */
     @PostMapping("/admin/list/page/vo")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<AppVO>> listAppVOByPageByAdmin(@RequestBody AppQueryRequest appQueryRequest) {
+    public BaseResponse<Page<AppVO>> listAppVOByPageByAdmin(@RequestBody AppQueryRequest appQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(appQueryRequest == null, ErrorCode.PARAMS_ERROR);
         long pageNum = appQueryRequest.getPageNum();
         long pageSize = appQueryRequest.getPageSize();
@@ -359,9 +363,11 @@ public class AppController {
         QueryWrapper queryWrapper = appService.getQueryWrapper(appQueryRequest);
         // 分页查询
         Page<App> appPage = appService.page(Page.of(pageNum, pageSize), queryWrapper);
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
         // 数据封装
         Page<AppVO> appVOPage = new Page<>(pageNum, pageSize, appPage.getTotalRow());
-        List<AppVO> appVOList = appService.getAppVOList(appPage.getRecords());
+        List<AppVO> appVOList = appService.getAppVOList(appPage.getRecords(), loginUser);
         appVOPage.setRecords(appVOList);
         return ResultUtils.success(appVOPage);
     }
@@ -374,13 +380,15 @@ public class AppController {
      */
     @GetMapping("/admin/get/vo")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<AppVO> getAppVOByIdByAdmin(long id) {
+    public BaseResponse<AppVO> getAppVOByIdByAdmin(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 查询数据库
         App app = appService.getById(id);
         ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_FOUND_ERROR);
         // 获取封装类
-        return ResultUtils.success(appService.getAppVO(app));
+        return ResultUtils.success(appService.getAppVO(app, loginUser));
     }
 
 

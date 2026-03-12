@@ -76,6 +76,12 @@ public class App implements Serializable {
     private Integer priority;
 
     /**
+     * 点赞数
+     */
+    @Column("upvoteCount")
+    private Integer upvoteCount;
+
+    /**
      * 创建用户id
      */
     @Column("userId")

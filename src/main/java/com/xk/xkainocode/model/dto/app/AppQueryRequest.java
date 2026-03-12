@@ -49,6 +49,11 @@ public class AppQueryRequest extends PageRequest implements Serializable {
     private Integer priority;
 
     /**
+     * 点赞数
+     */
+    private Integer upvoteCount;
+
+    /**
      * 创建用户id
      */
     private Long userId;

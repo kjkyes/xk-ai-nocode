@@ -32,7 +32,7 @@ public interface AppService extends IService<App> {
      * @param app
      * @return
      */
-    AppVO getAppVO(App app);
+    AppVO getAppVO(App app, User loginUser);
 
     /**
      * 构造应用查询条件
@@ -49,7 +49,7 @@ public interface AppService extends IService<App> {
      * @param appList
      * @return
      */
-    List<AppVO> getAppVOList(List<App> appList);
+    List<AppVO> getAppVOList(List<App> appList, User loginUser);
 
     /**
      * 对话生成应用

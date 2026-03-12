@@ -29,7 +29,7 @@ create table if not exists user
     ) comment '用户' collate = utf8mb4_unicode_ci;
 
 -- 应用表
-create table app
+create table if not exists app
 (
     id           bigint auto_increment comment 'id' primary key,
     appName      varchar(256)                       null comment '应用名称',
@@ -39,6 +39,7 @@ create table app
     deployKey    varchar(64)                        null comment '部署标识',
     deployedTime datetime                           null comment '部署时间',
     priority     int      default 0                 not null comment '优先级',
+    upvoteCount  int      default 0                 not null comment '点赞数',
     userId       bigint                             not null comment '创建用户id',
     editTime     datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
     createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -52,7 +53,7 @@ create table app
 -- 对话历史表
 -- 扩展设计1：目前是将创建时间设置为游标，后续可以用主键作游标，性能更好（届时记得把联合索引也改为应用id和主键）
 -- 扩展设计2：可以新增一个parentId字段，用于后续对ai重试某条用户提示词
-create table chat_history
+create table if not exists chat_history
 (
     id          bigint auto_increment comment 'id' primary key,
     message     text                               not null comment '消息',
@@ -66,4 +67,15 @@ create table chat_history
     INDEX idx_createTime (createTime),             -- 提升基于时间的查询性能
     INDEX idx_appId_createTime (appId, createTime) -- 游标查询核心索引
 ) comment '对话历史' collate = utf8mb4_unicode_ci;
+
+-- 点赞记录表
+create table if not exists thumb
+(
+    id         bigint auto_increment primary key,
+    userId     bigint                             not null,
+    appId      bigint                             not null,
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间'
+);
+create unique index idx_userId_appId on upvote (userId, appId);
+
 

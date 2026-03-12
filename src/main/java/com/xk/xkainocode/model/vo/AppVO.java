@@ -52,6 +52,11 @@ public class AppVO implements Serializable {
     private Integer priority;
 
     /**
+     * 点赞数
+     */
+    private Integer upvoteCount;
+
+    /**
      * 创建用户id
      */
     private Long userId;
@@ -70,6 +75,11 @@ public class AppVO implements Serializable {
      * 创建用户信息
      */
     private UserVO user;
+
+    /**
+     * 是否点赞
+     */
+    private Boolean isUpvote;
 
     private static final long serialVersionUID = 1L;
 }
