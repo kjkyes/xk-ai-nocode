@@ -27,7 +27,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  *
  * @author <a href="https://github.com/kjkyes">xk</a>
  */
-@Service
+@Service("upvoteServiceDB")
 @Slf4j
 @RequiredArgsConstructor
 public class UpvoteServiceImpl extends ServiceImpl<UpvoteMapper, Upvote> implements UpvoteService {

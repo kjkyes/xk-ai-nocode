@@ -42,7 +42,7 @@ public class UpvoteController {
      * @return
      */
     @PostMapping("/undoUpvote")
-    public BaseResponse<Boolean> undoThumb(@RequestBody DoUpvoteRequest doUpvoteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> undoUpvote(@RequestBody DoUpvoteRequest doUpvoteRequest, HttpServletRequest request) {
         Boolean success = upvoteService.undoUpvote(doUpvoteRequest, request);
         return ResultUtils.success(success);
     }

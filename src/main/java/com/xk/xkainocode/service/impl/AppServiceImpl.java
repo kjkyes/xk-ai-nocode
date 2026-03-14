@@ -2,6 +2,8 @@ package com.xk.xkainocode.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.util.RandomUtil;
@@ -11,6 +13,7 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.xk.xkainocode.ai.AiCodeGenTypeRoutingService;
 import com.xk.xkainocode.ai.AiCodeGenTypeRoutingServiceFactory;
 import com.xk.xkainocode.constant.AppConstant;
+import com.xk.xkainocode.constant.UpvoteConstant;
 import com.xk.xkainocode.core.AiCodeGeneratorFacade;
 import com.xk.xkainocode.core.builder.VueProjectBuilder;
 import com.xk.xkainocode.core.handler.StreamHandlerExecutor;
@@ -31,6 +34,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -50,6 +54,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
+//@RequiredArgsConstructor
 public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppService {
 
     @Resource
@@ -76,6 +81,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     @Resource
     @Lazy
     private UpvoteService upvoteService;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
 
     /**
      * 对话生成应用
@@ -139,6 +148,12 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         boolean result = this.save(app);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         log.info("应用创建成功，ID: {}, 类型: {}", app.getId(), selectedCodeGenType.getValue());
+        // 将应用创建时间写入redis
+        String appCreateTimeKey = UpvoteConstant.APP_CREATE_TIME_KEY_PREFIX.formatted(app.getId());
+        DateTime nowDate = DateUtil.date();
+        int year = DateUtil.year(nowDate);
+        int month = DateUtil.month(nowDate) + 1;
+        redisTemplate.opsForValue().set(appCreateTimeKey, String.format("%d:%d", year, month));
         return app.getId();
     }
 
