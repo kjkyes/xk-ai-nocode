@@ -49,7 +49,7 @@
 <!-- 这是一张图片，ocr 内容为： -->
 ![6.png](PictureResource%2F6.png)
 
-# 🎯智能体开发的三种实现方式
+# ⚖️智能体开发的三种实现方式
 **<font style="color:rgba(0, 0, 0, 0.9);">智能体（AI Agent）</font>**<font style="color:rgba(0, 0, 0, 0.9);">是一种能够</font>**<font style="color:rgba(0, 0, 0, 0.9);">自主感知环境、制定决策并采取行动</font>**<font style="color:rgba(0, 0, 0, 0.9);">以实现特定目标的AI系统 。</font><font style="color:rgba(0, 0, 0, 0.9);">最简洁的定义：</font>**<font style="color:rgba(0, 0, 0, 0.9);">Agent = 大模型（LLM）+ 规划（Planning）+ 记忆（Memory）+ 工具使用（Tool Use）。</font>**<font style="color:rgba(0, 0, 0, 0.9);">相比于传统AI助手，它能自主循环执行、多步骤规划+执行、主动调用搜索引擎、代码执行等、长短期记忆结合。</font>
 
 <font style="color:rgba(0, 0, 0, 0.9);">该项目用三种方式实现智能体应用：</font>
