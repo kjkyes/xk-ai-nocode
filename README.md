@@ -67,7 +67,7 @@
 <!-- 这是一张图片，ocr 内容为： -->
 ![8.png](PictureResource%2F8.png)
 
-## 并发方案一：应用Java8的Complable Future
+## 并发方案一：应用Java8的Completable Future
 性能：
 
 <!-- 这是一张图片，ocr 内容为： -->
