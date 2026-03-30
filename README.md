@@ -26,28 +26,28 @@
 1. 输入用户提示词。
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![1.png](PictureResource%2F1.png))
+![1.png](PictureResource%2F1.png)
 
 2. 实时预览应用生成过程和AI思考、工具调用过程，应用生成后可部署、下载源码。
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![2.png](PictureResource%2F2.png))
+![2.png](PictureResource%2F2.png)
 
 # 🔧技术选型
 <!-- 这是一张图片，ocr 内容为： -->
-![](![3.png](PictureResource%2F3.png))
+![3.png](PictureResource%2F3.png)
 
 # 🧾业务流程
 <!-- 这是一张图片，ocr 内容为： -->
-![](![4.png](PictureResource%2F4.png))
+![4.png](PictureResource%2F4.png)
 
 # 🙋用户模块
 <!-- 这是一张图片，ocr 内容为： -->
-![](![5.png](PictureResource%2F5.png))
+![5.png](PictureResource%2F5.png)
 
 # 🙇管理员模块
 <!-- 这是一张图片，ocr 内容为： -->
-![](![6.png](PictureResource%2F6.png))
+![6.png](PictureResource%2F6.png)
 
 # 🎯智能体开发的三种实现方式
 **<font style="color:rgba(0, 0, 0, 0.9);">智能体（AI Agent）</font>**<font style="color:rgba(0, 0, 0, 0.9);">是一种能够</font>**<font style="color:rgba(0, 0, 0, 0.9);">自主感知环境、制定决策并采取行动</font>**<font style="color:rgba(0, 0, 0, 0.9);">以实现特定目标的AI系统 。</font><font style="color:rgba(0, 0, 0, 0.9);">最简洁的定义：</font>**<font style="color:rgba(0, 0, 0, 0.9);">Agent = 大模型（LLM）+ 规划（Planning）+ 记忆（Memory）+ 工具使用（Tool Use）。</font>**<font style="color:rgba(0, 0, 0, 0.9);">相比于传统AI助手，它能自主循环执行、多步骤规划+执行、主动调用搜索引擎、代码执行等、长短期记忆结合。</font>
@@ -60,56 +60,56 @@
 
 ## 并发前
 并发前性能：<!-- 这是一张图片，ocr 内容为： -->
-![](![7.png](PictureResource%2F7.png))
+![7.png](PictureResource%2F7.png)
 
 效果展示：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![8.png](PictureResource%2F8.png))
+![8.png](PictureResource%2F8.png)
 
 ## 并发方案一：应用Java8的Complable Future
 性能：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![9.png](PictureResource%2F9.png))
+![9.png](PictureResource%2F9.png)
 
 架构图：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![10.png](PictureResource%2F10.png))
+![10.png](PictureResource%2F10.png)
 
 效果展示：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![11.png](PictureResource%2F11.png))
+![11.png](PictureResource%2F11.png)
 
 ## 并发方案二：LangGraph4j的并发实现
 性能：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![12.png](PictureResource%2F12.png))
+![12.png](PictureResource%2F12.png)
 
 架构图：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![13.png](PictureResource%2F13.png))
+![13.png](PictureResource%2F13.png)
 
 效果展示：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![14.png](PictureResource%2F14.png))
+![14.png](PictureResource%2F14.png)
 
 ## 并发方案三：LangGraph4j的子图实现
 性能：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![15.png](PictureResource%2F15.png))
+![15.png](PictureResource%2F15.png)
 
 架构图：<!-- 这是一张图片，ocr 内容为： -->
-![](![16.png](PictureResource%2F16.png))
+![16.png](PictureResource%2F16.png)
 
 效果展示：<!-- 这是一张图片，ocr 内容为： -->
-![](![17.png](PictureResource%2F17.png))
+![17.png](PictureResource%2F17.png)
 
 # 🎯项目中遇到的问题
 ## 问题一：结构化输出
@@ -120,12 +120,12 @@
 1. 参照[DeepSeek官方文档](https://api-docs.deepseek.com/zh-cn/guides/json_mode)的建议，调大了max_tokens参数（调到上限 -> 8192），防止JSON字符串被中途截断；设置response_format参数为 json_object。
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![18.png](PictureResource%2F18.png))
+![18.png](PictureResource%2F18.png)
 
 2. 参照[LangChain4j官方文档](https://docs.langchain4j.dev/tutorials/structured-outputs/#adding-description-1)中结构化输出部分的建议，给要返回的类和属性添加了Description标签，让AI更好的理解我们需要的输出。
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![19.png](PictureResource%2F19.png))
+![19.png](PictureResource%2F19.png)
 
 ## 问题二：下载浏览器驱动超时
 ### 问题
@@ -160,14 +160,14 @@ private static WebDriver initChromeDriver(int width, int height) {
 ```
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![20.png](PictureResource%2F20.png))
+![20.png](PictureResource%2F20.png)
 
 ## 问题三：redis缓存精选应用信息时报反序列化错误
 ### 问题
 在对**精选应用信息**应用redis缓存时，配置**缓存管理器**时，将**value**的序列化器设置为**json序列化器**，结果在使用过程中，在反序列化时，redis无法识别我们自定义的Java类“BaseResponse”导致造型错误。
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![21.png](PictureResource%2F21.png))
+![21.png](PictureResource%2F21.png)
 
 ### 解决方案
 设置ObjectMapper的**activateDefaultTyping**，配置序列化时将**对象类型**以**字段**的形式包含在json内，这样反序列化时也能恢复为对应类型。
@@ -191,5 +191,5 @@ private ObjectMapper createObjectMapper() {
 效果如下：
 
 <!-- 这是一张图片，ocr 内容为： -->
-![](![22.png](PictureResource%2F22.png))
+![22.png](PictureResource%2F22.png)
 
